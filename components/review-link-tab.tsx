@@ -222,6 +222,29 @@ export function ReviewLinkTab({ mode = 'links', onTabChange }: ReviewLinkTabProp
     activeSubTabRef.current = activeSubTab
   }, [activeSubTab])
 
+  // Reset auto-save trigger when component mounts fresh (i.e., not coming from onboarding)
+  useEffect(() => {
+    // Only reset if there's no valid completion redirect data
+    const completionData = sessionStorage.getItem('completion_redirect')
+    if (!completionData) {
+      autoSaveTriggeredRef.current = false
+    } else {
+      try {
+        const data = JSON.parse(completionData)
+        const timeDiff = Date.now() - data.timestamp
+        // Reset if the completion data is stale (older than 10 seconds)
+        if (timeDiff >= 10000) {
+          autoSaveTriggeredRef.current = false
+          sessionStorage.removeItem('completion_redirect')
+        }
+      } catch (error) {
+        // Invalid data, reset everything
+        autoSaveTriggeredRef.current = false
+        sessionStorage.removeItem('completion_redirect')
+      }
+    }
+  }, []) // Run only once on component mount
+
   // Memoize whether video testimonial exists to avoid dependency array issues
   const hasVideoTestimonial = useMemo(() => {
     return links.some(link => link.platformId === 'video-testimonial')
@@ -681,45 +704,51 @@ export function ReviewLinkTab({ mode = 'links', onTabChange }: ReviewLinkTabProp
 
   // Force save button click after completion redirect - specifically for landing page
   useEffect(() => {
-    // Check if we're coming from profile completion (not manual refresh)
-    const checkAndClickSave = () => {
-      const completionData = sessionStorage.getItem('completion_redirect')
-      
-      if (completionData && activeSubTab === 'landing' && !isInitialLoad && !isSaving && !autoSaveTriggeredRef.current) {
-        try {
-          const data = JSON.parse(completionData)
-          const timeDiff = Date.now() - data.timestamp
-          
-          // Only trigger if redirect happened within last 10 seconds
-          if (timeDiff < 10000 && data.triggered) {
-            // Mark as triggered
-            autoSaveTriggeredRef.current = true
-            sessionStorage.removeItem('completion_redirect')
-
-            // Click the save button once after a short delay
-            setTimeout(() => {
-              if (landingPageSaveButtonRef.current && !isSaving) {
-                try {
-                  landingPageSaveButtonRef.current.click()
-                } catch (error) {
-                  console.error('Error clicking save button:', error)
-                  // Fallback to calling the handler directly
-                  handleManualSave()
-                }
-              }
-            }, 500)
-          } else {
-            // Remove stale flag
-            sessionStorage.removeItem('completion_redirect')
-          }
-        } catch (error) {
-          // Handle old format or invalid JSON
-          sessionStorage.removeItem('completion_redirect')
-        }
-      }
+    // Only check when we first land on the 'landing' sub-tab, not on subsequent tab switches
+    if (activeSubTab !== 'landing' || isInitialLoad || isSaving || autoSaveTriggeredRef.current) {
+      return
     }
 
-    checkAndClickSave()
+    const completionData = sessionStorage.getItem('completion_redirect')
+    if (!completionData) {
+      return
+    }
+
+    try {
+      const data = JSON.parse(completionData)
+      const timeDiff = Date.now() - data.timestamp
+      
+      // Only trigger if redirect happened within last 10 seconds and flag is still active
+      if (timeDiff < 10000 && data.triggered) {
+        console.log('Triggering auto-save after onboarding completion')
+        
+        // Mark as triggered to prevent future runs
+        autoSaveTriggeredRef.current = true
+        sessionStorage.removeItem('completion_redirect')
+
+        // Click the save button once after a short delay
+        setTimeout(() => {
+          if (landingPageSaveButtonRef.current && !isSaving) {
+            try {
+              console.log('Auto-clicking save button after completion')
+              landingPageSaveButtonRef.current.click()
+            } catch (error) {
+              console.error('Error clicking save button:', error)
+              // Fallback to calling the handler directly
+              handleManualSave()
+            }
+          }
+        }, 500)
+      } else {
+        // Remove stale flag - completion was too long ago
+        console.log('Removing stale completion flag (too old or already processed)')
+        sessionStorage.removeItem('completion_redirect')
+      }
+    } catch (error) {
+      // Handle old format or invalid JSON
+      console.log('Removing invalid completion flag')
+      sessionStorage.removeItem('completion_redirect')
+    }
   }, [activeSubTab, isInitialLoad, isSaving])
 
   // Removed redundant useEffect that was monitoring completion flag changes

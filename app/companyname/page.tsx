@@ -138,7 +138,7 @@ export default function CreateUsernamePage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative flex items-center border border-[#20E070] rounded-xl overflow-hidden">
-              <span className="pl-4 pr-2 text-gray-600">loop.review/</span>
+              <span className="pl-4 pr-2 text-gray-600">app.loopreview.io/</span>
               <Input
                 type="text"
                 value={username}

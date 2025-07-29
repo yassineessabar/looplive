@@ -704,13 +704,18 @@ export function ReviewLinkTab({ mode = 'links', onTabChange }: ReviewLinkTabProp
 
   // Force save button click after completion redirect - specifically for landing page
   useEffect(() => {
-    // Only check when we first land on the 'landing' sub-tab, not on subsequent tab switches
-    if (activeSubTab !== 'landing' || isInitialLoad || isSaving || autoSaveTriggeredRef.current) {
+    // Only trigger when we're on landing tab, not saving, and haven't triggered before
+    if (activeSubTab !== 'landing' || isSaving || autoSaveTriggeredRef.current) {
       return
     }
 
     const completionData = sessionStorage.getItem('completion_redirect')
     if (!completionData) {
+      return
+    }
+
+    // If still loading, wait for data to be ready
+    if (isInitialLoad) {
       return
     }
 

@@ -52,7 +52,7 @@ async function saveAdditionalData(userId: string, data: any) {
       const reviewLinkData = {
         user_id: userId,
         company_name: companyName || 'My Company',
-        review_url: `https://loop.review/${(companyName || 'company').toLowerCase().replace(/\s+/g, '')}`,
+        review_url: `https://app.loopreview.io/${(companyName || 'company').toLowerCase().replace(/\s+/g, '')}`,
         enabled_platforms: selectedPlatforms,
         updated_at: new Date().toISOString()
       }

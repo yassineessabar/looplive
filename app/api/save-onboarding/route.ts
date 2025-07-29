@@ -300,7 +300,7 @@ export async function POST(request: NextRequest) {
         const reviewLinkData = {
           user_id: userId,
           company_name: companyName || 'My Company',
-          review_url: `https://loop.review/${companyName?.toLowerCase().replace(/\s+/g, '') || 'company'}`,
+          review_url: `https://app.loopreview.io/${companyName?.toLowerCase().replace(/\s+/g, '') || 'company'}`,
           enabled_platforms: selectedPlatforms,
           links: linksArray.length > 0 ? linksArray : undefined,
           created_at: new Date().toISOString(),

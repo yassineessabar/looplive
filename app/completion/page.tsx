@@ -299,24 +299,6 @@ export default function CompletionPage() {
           ))}
         </div>
 
-        {/* Review Platforms */}
-        <div className="w-full space-y-3 px-4 max-w-xs">
-          <div className="w-full bg-white border border-gray-200 rounded-full py-3 px-6 text-center shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">G</span>
-              </div>
-              <span className="text-gray-800 font-medium text-sm">Leave Google Review</span>
-            </div>
-          </div>
-
-          <div className="w-full bg-white border border-gray-200 rounded-full py-3 px-6 text-center shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-center space-x-2">
-              <Globe className="w-4 h-4 text-gray-600" />
-              <span className="text-gray-800 font-medium text-sm">Visit Website</span>
-            </div>
-          </div>
-        </div>
 
         {/* Powered by Loop Review */}
         <div className="mt-auto pt-6">
